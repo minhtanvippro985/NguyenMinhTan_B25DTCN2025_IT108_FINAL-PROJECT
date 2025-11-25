@@ -29,6 +29,7 @@ void updateEmployee(struct Employee list[], int *n);
 void deleteEmployeev2(struct Employee list[], int *n);
 void displayEmployeeList(struct Employee list[], int n);
 void bubblesort(struct Employee list[], int n);
+void FINDEMPLOYEE(struct Employee list[], int n);
 
 int EMPTYCHECKER(char *str)
 {
@@ -101,7 +102,9 @@ int main()
             displayEmployeeList(list, n);
             break;
         case 5:
-            printf("ss");
+        	FINDEMPLOYEE(list , n);
+           // printf("ss");
+          // em
             break;
         case 6:
             bubblesort(list, n);
@@ -449,29 +452,58 @@ void deleteEmployeev2(struct Employee list[], int *n)
 
 void bubblesort(struct Employee list[], int n)
 {
+	
     int bubblechoice; // chon tang dan giam dan
+
     if (n == 0)
     {
         printf("\n DANH SACH HIEN DANG RONG\n");
         return;
     }
-
     if (n == 1)
     {
-        printf("\n \nCHUA CO DO NHAN VIEN DE SAP XEP\n");
+        printf("\nCHUA CO DU NHAN VIEN DE SAP XEP\n");
         return;
     }
-    showBUBBLE_MENU();
-    printf("nhap lua chon cua ban : ");
-    scanf("%d", &bubblechoice);
-    getchar();
 
-    // vi person indexer khong phai char , int , float , nen dung struct thi MOI NHAN DUOC TEMP!!!!
+    while (1)
+    {
+        showBUBBLE_MENU();
+        printf("Nhap lua chon cua ban: ");
+
+        char buffer[20];
+        fgets(buffer, sizeof(buffer), stdin);
+
+        // kiểm tra rỗng
+        if (buffer[0] == '\n')
+        {
+            printf("KHONG HOP LE .... NHAP LAI...\n");
+            continue;
+        }
+
+        // kiểm tra có phải số hay không
+        if (sscanf(buffer, "%d", &bubblechoice) != 1)
+        {
+            printf("KHONG HOP LE..... NHAP LAI...\n");
+            continue;
+        }
+
+        // kiểm tra số có thuộc 1 hoặc 2 không
+        if (bubblechoice != 1 && bubblechoice != 2)
+        {
+            printf("Lua chon khong hop le! Nhap lai.\n");
+            continue;
+        }
+
+        break; // HOP LE 
+    }
+
+// sorter
     if (bubblechoice == 1)
-    {   
-        printf("da chon tang dan \n ");
+    {
+        printf("Da chon tang dan\n");
         for (int times = 0; times < n - 1; times++)
-        {   
+        {
             for (int indexer = 0; indexer < n - times - 1; indexer++)
             {
                 if (list[indexer].baseSalary > list[indexer + 1].baseSalary)
@@ -482,10 +514,10 @@ void bubblesort(struct Employee list[], int n)
                 }
             }
         }
-    } 
-    if (bubblechoice == 2)
+    }
+    else if (bubblechoice == 2)
     {
-        printf("da chon giam dan \n ");
+        printf("Da chon giam dan\n");
         for (int times = 0; times < n - 1; times++)
         {
             for (int indexer = 0; indexer < n - times - 1; indexer++)
@@ -500,3 +532,59 @@ void bubblesort(struct Employee list[], int n)
         }
     }
 }
+
+void FINDEMPLOYEE(struct Employee list[], int n)
+{
+    if (n == 0) {
+        printf("DANH SACH HIEN DANG RONG..!\n");
+        return;
+    }
+
+    char searchName[50];
+    printf("NHAP TEN NHAN VIEN CAN TIM ");
+    fgets(searchName, sizeof(searchName), stdin);
+    searchName[strcspn(searchName, "\n")] = '\0';
+
+    // space checker
+    if (strlen(searchName) == 0) {
+        printf("Ten tim kiem KHONG DUOC de trong!\n");
+        return;
+    }
+
+    // lowcase
+    char lowerSearch[50];
+    for (int i = 0; searchName[i]; i++) {
+        lowerSearch[i] = tolower(searchName[i]);
+        lowerSearch[i+1] = '\0';
+    }
+
+    int found = 0;
+    printf("\n===== KET QUA TIM KIEM =====\n");
+    printf("%-10s | %-20s | %-12s | %-10s | %-5s\n",
+           "Ma NV", "Ten NV", "Chuc vu", "Luong", "Cong");
+    for (int i = 0; i < n; i++) {
+
+        //so sanh
+        char lowerName[50];
+        for (int j = 0; list[i].name[j]; j++) {
+            lowerName[j] = tolower(list[i].name[j]);
+            lowerName[j+1] = '\0';
+        }
+
+        if (strstr(lowerName, lowerSearch) != NULL) {
+        
+            printf("%-10s | %-20s | %-12s | %-10.2lf | %-5d\n",
+                   list[i].empId,
+                   list[i].name,
+                   list[i].position,
+                   list[i].baseSalary,
+                   list[i].workDay);
+
+            found = 1;
+        }
+    }
+
+    if (!found)
+        printf("KHONG TIM THAY NHAN VIEN CO TEN \"%s\"!\n", searchName);
+}
+
