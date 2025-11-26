@@ -177,8 +177,8 @@ void updateEmployee(struct Employee list[], int *n)
 
         if (pos == -1)
         {
-            printf("Khong tim thay ID! Nhap lai.\n");
-            continue;
+            printf("\n \n ID KHONG TON TAI.\n");
+            return;
         }
 
         break;
@@ -189,7 +189,7 @@ void updateEmployee(struct Employee list[], int *n)
     // ===== CHUC VU=====
     while (1)
     {
-        printf("Nhap CHUC VU");
+        printf("Nhap CHUC VU MOI : ");
         fgets(list[pos].position, 15, stdin);
         list[pos].position[strcspn(list[pos].position, "\n")] = '\0';
 
@@ -392,7 +392,7 @@ void add_people(struct Employee list[], int *n)
         break;
     }
 
-    (*n)++;
+    (*n)++; // them size
     printf("Them nhan vien thanh cong!\n");
 }
 
@@ -433,7 +433,7 @@ void deleteEmployeev2(struct Employee list[], int *n)
         if (pos == -1)
         {
             printf("KHONG tim thay nhan vien co ma %s\n", deleteEmpId);
-            break;
+            return ; 
         }
 
         break;
@@ -443,7 +443,7 @@ void deleteEmployeev2(struct Employee list[], int *n)
     {
         list[i] = list[i + 1];
     }
-    (*n)--;
+    (*n)--; // tru mang
 
     printf("Xoa nhan vien %s thanh cong.\n", deleteEmpId);
 }
@@ -480,7 +480,7 @@ void bubblesort(struct Employee list[], int n)
         }
 
         // kiểm tra có phải số hay không
-        if (sscanf(buffer, "%d", &bubblechoice) != 1)
+        if (sscanf(buffer, "%d", &bubblechoice) != 1) // sscanf doc du lieu tu bo dem
         {
             printf("KHONG HOP LE..... NHAP LAI...\n");
             continue;
@@ -585,4 +585,8 @@ void FINDEMPLOYEE(struct Employee list[], int n)
 
     if (!found)
         printf("KHONG TIM THAY NHAN VIEN CO TEN \"%s\"!\n", searchName);
+}
+
+void Time_Keeping(){
+	
 }
