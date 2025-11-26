@@ -20,11 +20,9 @@ struct TimeSheet
     char status[10];
 };
 
+struct Employee list[MAX];
 
-struct Employee list[MAX]; 
-
-
-void add_people(struct Employee list[], int *n); // con tro la vung nho , het gia tri
+void add_people(struct Employee list[], int *n); // con tro la vung nho
 void updateEmployee(struct Employee list[], int *n);
 void deleteEmployeev2(struct Employee list[], int *n);
 void displayEmployeeList(struct Employee list[], int n);
@@ -74,7 +72,7 @@ void showmenu()
 //--------------------------------------
 int main()
 {
-    
+
     int n = 0;
     int choice;
 
@@ -102,9 +100,9 @@ int main()
             displayEmployeeList(list, n);
             break;
         case 5:
-        	FINDEMPLOYEE(list , n);
-           // printf("ss");
-          // em
+            FINDEMPLOYEE(list, n);
+            // printf("ss");
+
             break;
         case 6:
             bubblesort(list, n);
@@ -452,7 +450,7 @@ void deleteEmployeev2(struct Employee list[], int *n)
 
 void bubblesort(struct Employee list[], int n)
 {
-	
+
     int bubblechoice; // chon tang dan giam dan
 
     if (n == 0)
@@ -495,10 +493,10 @@ void bubblesort(struct Employee list[], int n)
             continue;
         }
 
-        break; // HOP LE 
+        break; // HOP LE
     }
 
-// sorter
+    // sorter
     if (bubblechoice == 1)
     {
         printf("Da chon tang dan\n");
@@ -535,51 +533,52 @@ void bubblesort(struct Employee list[], int n)
 
 void FINDEMPLOYEE(struct Employee list[], int n)
 {
-    if (n == 0) {
+    if (n == 0)
+    {
         printf("DANH SACH HIEN DANG RONG..!\n");
         return;
     }
 
     char searchName[50];
-    printf("NHAP TEN NHAN VIEN CAN TIM ");
+    printf("NHAP TEN NHAN VIEN CAN TIM: ");
     fgets(searchName, sizeof(searchName), stdin);
     searchName[strcspn(searchName, "\n")] = '\0';
 
-    // space checker
-    if (strlen(searchName) == 0) {
+    if (strlen(searchName) == 0)
+    {
         printf("Ten tim kiem KHONG DUOC de trong!\n");
         return;
     }
 
-    // lowcase
+    // lowercase searchName
     char lowerSearch[50];
-    for (int i = 0; searchName[i]; i++) {
+    int len = strlen(searchName);
+    for (int i = 0; i < len; i++)
         lowerSearch[i] = tolower(searchName[i]);
-        lowerSearch[i+1] = '\0';
-    }
+    lowerSearch[len] = '\0';
 
     int found = 0;
     printf("\n===== KET QUA TIM KIEM =====\n");
     printf("%-10s | %-20s | %-12s | %-10s | %-5s\n",
            "Ma NV", "Ten NV", "Chuc vu", "Luong", "Cong");
-    for (int i = 0; i < n; i++) {
 
-        //so sanh
+    for (int i = 0; i < n; i++)
+    {
+
         char lowerName[50];
-        for (int j = 0; list[i].name[j]; j++) {
+        int len2 = strlen(list[i].name);
+        for (int j = 0; j < len2; j++)
             lowerName[j] = tolower(list[i].name[j]);
-            lowerName[j+1] = '\0';
-        }
+        lowerName[len2] = '\0';
 
-        if (strstr(lowerName, lowerSearch) != NULL) {
-        
+        if (strstr(lowerName, lowerSearch) != NULL)
+        { // neu 0 thay thi tra ve on tro rong , neu thay se tra ve vi tri tim duoc
             printf("%-10s | %-20s | %-12s | %-10.2lf | %-5d\n",
                    list[i].empId,
                    list[i].name,
                    list[i].position,
                    list[i].baseSalary,
                    list[i].workDay);
-
             found = 1;
         }
     }
@@ -587,4 +586,3 @@ void FINDEMPLOYEE(struct Employee list[], int n)
     if (!found)
         printf("KHONG TIM THAY NHAN VIEN CO TEN \"%s\"!\n", searchName);
 }
-
