@@ -22,15 +22,19 @@ struct TimeSheet
 };
 
 struct Employee list[MAX];
+struct TimeSheet sheet[MAX];
 
-void add_people(struct Employee list[], int *n); // con tro la vung nho
-void updateEmployee(struct Employee list[], int *n);
-void deleteEmployeev2(struct Employee list[], int *n);
-void displayEmployeeList(struct Employee list[], int n);
-void bubblesort(struct Employee list[], int n);
-void FINDEMPLOYEE(struct Employee list[], int n);
+void add_people(struct Employee list[], int *n);         // con tro la vung nho
+void updateEmployee(struct Employee list[], int *n);     // cap nhat
+void deleteEmployeev2(struct Employee list[], int *n);   // xoa nhan vien
+void displayEmployeeList(struct Employee list[], int n); // xem bang
+void bubblesort(struct Employee list[], int n);          // sap xep nhan vien
+void FINDEMPLOYEE(struct Employee list[], int n);        // tim nhan vien
+void Time_Keeping(struct Employee list[], int n, struct TimeSheet sheet[], int *logCount); // cham cong
+int isValidDate(char *date);                             // check 31 30 , 28 , 29
 
-int EMPTYCHECKER(char *str)
+
+int EMPTYCHECKER(char *str)                              // check xem co ki tu rong
 {
 
     str[strcspn(str, "\n")] = '\0';
@@ -73,7 +77,7 @@ void showmenu()
 //--------------------------------------
 int main()
 {
-
+    int logCount = 0;
     int n = 0;
     int choice;
 
@@ -109,6 +113,10 @@ int main()
             bubblesort(list, n);
 
             break;
+        case 7 :
+        	Time_Keeping(list, n, sheet, &logCount);
+        	break;
+		         
         default:
             printf("Khong hop le!");
         }
@@ -116,22 +124,48 @@ int main()
 
     return 0;
 }
+
 void displayEmployeeList(struct Employee list[], int n)
 {
     if (n == 0)
     {
-        printf("Danh sach nhan vien hien dang trong!\n");
+        printf("DANH SACH DANG TRONG.\n");
         return;
     }
 
-    printf("\n====================== DANH SACH NHAN VIEN ======================\n");
-    printf("%-10s | %-20s | %-12s | %-10s | %-5s\n",
-           "Ma NV", "Ten NV", "Chuc vu", "Luong", "Cong");
-    printf("-------------------------------------------------------------------\n");
+    int perPage = 3; // 3 nguoi 1 trang
+    int totalPages = (n + perPage - 1) / perPage;
 
-    for (int i = 0; i < n; i++)
+    int page;
+
+    while (1)
     {
-        printf("%-10s | %-20s | %-12s | %-10.2lf | %-5d\n",
+        printf("SO TRANG MUON XEM 1 - %d: ", totalPages);
+        scanf("%d", &page);
+
+        if (page >= 1 && page <= totalPages)
+        {
+            break;
+        }
+        else
+        {
+            printf("KHONG HOP LE - VUI LONG NHAP LAI\n");
+        }
+    }
+
+    printf("\n===== DANH SACH NHAN VIEN (Trang %d / %d) =====\n", page, totalPages);
+
+    printf("+--------+----------------------+-----------------+---------------+-------------+\n");
+    printf("| MA NV  | TEN NV               | CHUC VU         | LUONG CO BAN  | NGAY CONG   |\n");
+    printf("+--------+----------------------+-----------------+---------------+-------------+\n");
+
+    int start = (page - 1) * perPage;
+    int end = start + perPage;
+    if (end > n) end = n;
+
+    for (int i = start; i < end; i++)
+    {
+        printf("| %-6s | %-20s | %-15s | %-13.0lf | %-11d |\n",
                list[i].empId,
                list[i].name,
                list[i].position,
@@ -139,8 +173,9 @@ void displayEmployeeList(struct Employee list[], int n)
                list[i].workDay);
     }
 
-    printf("Hien thi danh sach thanh cong!\n");
+    printf("+--------+----------------------+-----------------+---------------+-------------+\n");
 }
+
 
 void updateEmployee(struct Employee list[], int *n)
 {
@@ -434,7 +469,7 @@ void deleteEmployeev2(struct Employee list[], int *n)
         if (pos == -1)
         {
             printf("KHONG tim thay nhan vien co ma %s\n", deleteEmpId);
-            return ; 
+            return;
         }
 
         break;
@@ -588,7 +623,108 @@ void FINDEMPLOYEE(struct Employee list[], int n)
         printf("KHONG TIM THAY NHAN VIEN CO TEN \"%s\"!\n", searchName);
 }
 
-void Time_Keeping(){
-	
-}
+void Time_Keeping(struct Employee list[], int n, struct TimeSheet sheet[], int *logCount){
 
+
+    
+    
+        char checkInEmpId[20];
+        char checkInDate[20];
+
+        // ===== Nhập mã NV =====
+        while (1)
+        {
+            printf("Nhap ma nhan vien can cham cong: ");
+            fgets(checkInEmpId, sizeof(checkInEmpId), stdin);
+            checkInEmpId[strcspn(checkInEmpId, "\n")] = '\0';
+
+            if (strlen(checkInEmpId) == 0)
+            {
+                printf("Ma nhan vien khong duoc de trong!\n");
+                continue;
+            }
+            break;
+        }
+
+        // ===== Kiểm tra nhân viên tồn tại =====
+        int pos = -1;
+        for (int i = 0; i < n; i++)
+        {
+            if (strcmp(list[i].empId, checkInEmpId) == 0)
+            {
+                pos = i;
+                break;
+            }
+        }
+
+        if (pos == -1)
+        {
+            printf("Khong tim thay nhan vien co ma %s\n", checkInEmpId);
+            return;
+        }
+
+        // ===== Nhập ngày chấm công =====
+        while (1)
+        {
+            printf("Nhap ngay cham cong (dd/mm/yyyy): ");
+            fgets(checkInDate, sizeof(checkInDate), stdin);
+            checkInDate[strcspn(checkInDate, "\n")] = '\0';
+
+            if (strlen(checkInDate) == 0)
+            {
+                printf("Ngay cham cong khong duoc de trong!\n");
+                continue;
+            }
+
+            if (!isValidDate(checkInDate))
+            {
+                printf("Ngay khong hop le! Dinh dang dd/mm/yyyy.\n");
+                continue;
+            }
+
+            break;
+        }
+
+        // ===== Kiểm tra trùng lặp =====
+        for (int i = 0; i < *logCount; i++)
+        {
+            if (strcmp(sheet[i].empId, checkInEmpId) == 0 &&
+                strcmp(sheet[i].date, checkInDate) == 0)
+            {
+
+                printf("Nhan vien %s da duoc cham cong vao ngay nay roi!\n", checkInEmpId);
+                return;
+            }
+        }
+
+        // ===== Tăng ngày công =====
+        list[pos].workDay++;
+
+        // ===== Tạo record mới =====
+        sprintf(sheet[*logCount].logId, "LOG%03d", *logCount + 1);
+        strcpy(sheet[*logCount].empId, checkInEmpId);
+        strcpy(sheet[*logCount].date, checkInDate);
+        strcpy(sheet[*logCount].status, "Di lam");
+
+        (*logCount)++;
+
+        printf("Cham cong ngay %s cho nhan vien %s thanh cong!\n",
+               checkInDate, checkInEmpId);
+    }
+
+int isValidDate(char *date)
+{
+    int d, m, y;
+
+    if (sscanf(date, "%d/%d/%d", &d, &m, &y) != 3)
+        return 0;
+
+    if (d < 1 || d > 31)
+        return 0;
+    if (m < 1 || m > 12)
+        return 0;
+    if (y < 1900 || y > 3000)
+        return 0;
+
+    return 1;
+}
