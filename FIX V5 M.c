@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAX 100
 
@@ -590,3 +591,4 @@ void FINDEMPLOYEE(struct Employee list[], int n)
 void Time_Keeping(){
 	
 }
+
