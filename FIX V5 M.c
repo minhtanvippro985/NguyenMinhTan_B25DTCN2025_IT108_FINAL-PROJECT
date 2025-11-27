@@ -43,7 +43,9 @@ int isValidDate(char *date);                                                    
 int EMPTYCHECKER(char *str);                                                               // ky tu space
 int isFutureDate(int d, int m, int y);                                                     // check tuong lai
 void getToday(int *d, int *m, int *y);                                                      // check hom nay
-void timesheetviewer(struct Employee list[], int n,struct TimeSheet sheet[], int logCount);  // check cham cong
+//void timesheetviewer(struct Employee list[], int n,struct TimeSheet sheet[], int logCount);  // check cham cong
+void timesheetviewerv2(struct Employee list[], int n,struct TimeSheet sheet[], int logCount);  // check cham cong V2
+int  compareDate(int d1, int m1, int y1, int d2, int m2, int y2);                            // so sanh ngay
 //------------------------------
 void showBUBBLE_MENU()
 {
@@ -77,10 +79,11 @@ int main()
     do
     {
         showmenu();
+        printf("\n (CHI DUOC NHAP SO) \n");
         printf("Moi ban nhap lua chon: ");
         while (1)
         {
-            printf("\n chi duoc nhap so ");
+            
             fgets(choicebuffer, sizeof(choicebuffer), stdin);
             choicebuffer[strcspn(choicebuffer, "\n")] = '\0'; // xoa newline
 
@@ -126,7 +129,8 @@ int main()
             fflush(stdin);
             break;
         case 8 : 
-            timesheetviewer(list, n, sheet, logCount);
+           // timesheetviewer(list, n, sheet, logCount);
+            timesheetviewerv2(list, n, sheet, logCount);
             fflush(stdin);
 			break;
             
@@ -357,34 +361,37 @@ void add_people(struct Employee list[], int *n)
 
     // ID ---
     while (1)
-    {
-        printf("Nhap ma nhan vien: ");
-        fgets(buffer, sizeof(buffer), stdin);
+{
+    printf("Nhap ma nhan vien: ");
+    fgets(buffer, sizeof(buffer), stdin);
+     
 
-        if (EMPTYCHECKER(buffer))
-        {
-            printf("Ma nhan vien khong duoc trong!\n");
-            continue;
-        }
-
-        int exists = 0;
-        for (int i = 0; i < *n; i++)
-        {
-            if (strcmp(list[i].empId, buffer) == 0)
-            {
-                exists = 1;
-                break;
-            }
-        }
-        if (exists)
-        {
-            printf("Ma nhan vien da ton tai! Nhap lai.\n");
-            continue;
-        }
-
-        strcpy(list[*n].empId, buffer);
-        break;
+    if (EMPTYCHECKER(buffer)) {
+        printf("Ma nhan vien khong duoc trong!\n");
+        continue;
     }
+
+    // 🚫 CẤM BẮT ĐẦU BẰNG DẤU '-'
+    if (buffer[0] == '-') {
+        printf("KHONG DUOC BAT DAU BANG DAU '-'\n");
+        continue;
+    }
+
+    int exists = 0;
+    for (int i = 0; i < *n; i++) {
+        if (strcmp(list[i].empId, buffer) == 0) {
+            exists = 1;
+            break;
+        }
+    }
+    if (exists) {
+        printf("Ma nhan vien da ton tai! Nhap lai.\n");
+        continue;
+    }
+
+    strcpy(list[*n].empId, buffer);
+    break;
+}
 
     // --- NHAP TEN ---
     while (1)
@@ -931,17 +938,21 @@ void bubblesortafterdisplay(struct Employee list[], int n)
 
     printf("Hien thi danh sach thanh cong!\n");
 }
-void timesheetviewer(struct Employee list[], int n,struct TimeSheet sheet[], int logCount)
+
+// CASE 8
+void timesheetviewer(struct Employee list[], int n, struct TimeSheet sheet[], int logCount)
 {
+	
     if (n == 0)
     {
-        printf("Danh sach nhan vien dang rong, khong the xem bang cong!\n");
+        printf("\nDanh sach nhan vien dang trong!\n");
         return;
     }
 
     char viewEmpId[20];
+    int found = 0;
 
-    // ID CHECKER
+    // ID?
     while (1)
     {
         printf("Nhap ma nhan vien can xem bang cong: ");
@@ -950,66 +961,200 @@ void timesheetviewer(struct Employee list[], int n,struct TimeSheet sheet[], int
 
         if (strlen(viewEmpId) == 0)
         {
-            printf("Ma nhan vien khong duoc de trong!\n");
+            printf("Khong duoc de trong!\n");
             continue;
         }
+
+        // found?
+        found = 0;
+        for (int i = 0; i < n; i++)
+        {
+            if (strcmp(list[i].empId, viewEmpId) == 0)
+            {
+                found = 1;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            printf("Ma nhan vien khong ton tai!\n");
+            continue;
+        }
+
         break;
     }
 
-    // CHECKER 2
-    int exists = 0;
-    for (int i = 0; i < n; i++)
+    // === TODAY ===
+    time_t t = time(NULL);
+    struct tm *now = localtime(&t);
+    int todayD = now->tm_mday;
+    int todayM = now->tm_mon + 1;
+    int todayY = now->tm_year + 1900;
+
+    int startD = 1;
+    int startM = todayM;
+    int startY = todayY;
+
+    int hasData = 0;
+
+    // WHERE DÂTA
+    for (int i = 0; i < logCount; i++)
     {
-        if (strcmp(list[i].empId, viewEmpId) == 0)
+        if (strcmp(sheet[i].empId, viewEmpId) == 0)
         {
-            exists = 1;
-            break;
+            int d, m, y;
+            sscanf(sheet[i].date, "%d/%d/%d", &d, &m, &y);
+
+            if (y == startY && m == startM && d >= startD && d <= todayD)
+            {
+                hasData = 1;
+                break;
+            }
         }
     }
 
-    if (!exists)
+    // NO DATA GET OUT
+    if (!hasData)
     {
-        printf("Khong ton tai nhan vien co ma '%s'!\n", viewEmpId);
+        printf("Khong co du lieu cham cong trong thang nay!\n");
         return;
     }
 
-    // LOG CHECKER
-    printf("\n===== BANG CHAM CONG CUA NHAN VIEN %s =====\n", viewEmpId);
-    printf("%-10s | %-12s | %-10s\n", "LogID", "Ngay cham", "Trang thai");
-    printf("--------------------------------------------\n");
+    // DATA YESSIR
+    printf("\n===== BANG CONG NHAN VIEN %s =====\n", viewEmpId);
+    printf("Tu ngay %02d/%02d/%04d den %02d/%02d/%04d\n\n",
+           startD, startM, startY,
+           todayD, todayM, todayY);
 
-    int found = 0;
+    printf("+--------+--------------+-------------+\n");
+    printf("| Log ID | Ngay cham    | Trang thai  |\n");
+    printf("+--------+--------------+-------------+\n");
 
     for (int i = 0; i < logCount; i++)
     {
         if (strcmp(sheet[i].empId, viewEmpId) == 0)
         {
-            printf("%-10s | %-12s | %-10s\n",
-                   sheet[i].logId,
-                   sheet[i].date,
-                   sheet[i].status);
-            found = 1;
+            int d, m, y;
+            sscanf(sheet[i].date, "%d/%d/%d", &d, &m, &y);
+
+            if (y == startY && m == startM && d >= startD && d <= todayD)
+            {
+                printf("| %-6s | %-12s | %-11s |\n",
+                       sheet[i].logId,
+                       sheet[i].date,
+                       sheet[i].status);
+            }
         }
     }
 
-    if (!found)
+    printf("+--------+--------------+-------------+\n");
+    printf("Hien thi thanh cong!\n");
+}
+
+
+
+void timesheetviewerv2(struct Employee list[], int n, struct TimeSheet sheet[], int logCount)
+{
+    if (n == 0)
     {
-        printf("Nhan vien nay chua co ban ghi cham cong nao!\n");
+        printf("\nDanh sach nhan vien dang trong!\n");
         return;
     }
 
-    printf("--------------------------------------------\n");
-    printf("Hien thi bang cham cong thanh cong!\n");
+    char viewEmpId[20];
+    int found = 0;
+
+    // === NHẬP MÃ NHÂN VIÊN ===
+    while (1)
+    {
+        printf("Nhap ma nhan vien can xem bang cong: ");
+        fgets(viewEmpId, sizeof(viewEmpId), stdin);
+        viewEmpId[strcspn(viewEmpId, "\n")] = '\0';
+
+        if (strlen(viewEmpId) == 0)
+        {
+            printf("Khong duoc de trong!\n");
+            continue;
+        }
+
+        found = 0;
+        for (int i = 0; i < n; i++)
+        {
+            if (strcmp(list[i].empId, viewEmpId) == 0)
+            {
+                found = 1;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            printf("Ma nhan vien khong ton tai!\n");
+            continue;
+        }
+
+        break;
+    }
+
+    // === LẤY NGÀY HIỆN TẠI ===
+    time_t t = time(NULL);
+    struct tm *now = localtime(&t);
+
+    int todayD = now->tm_mday;
+    int todayM = now->tm_mon + 1;
+    int todayY = now->tm_year + 1900;
+
+    int startD = 1;
+    int startM = todayM;
+    int startY = todayY;
+
+    printf("\n===== BANG CONG NHAN VIEN %s =====\n", viewEmpId);
+    printf("Tu ngay %02d/%02d/%04d den %02d/%02d/%04d\n\n",
+           startD, startM, startY,
+           todayD, todayM, todayY);
+
+    printf("+--------------+-------------+\n");
+    printf("| Ngay cham    | Trang thai  |\n");
+    printf("+--------------+-------------+\n");
+
+    // === HIỂN THỊ TỪ NGÀY 1 → HÔM NAY ===
+    for (int day = 1; day <= todayD; day++)
+    {
+        char dateStr[20];
+        sprintf(dateStr, "%02d/%02d/%04d", day, startM, startY);
+
+        char status[20] = "Nghi lam"; // mặc định không có log
+        int logged = 0;
+
+        // kiểm tra logs
+        for (int i = 0; i < logCount; i++)
+        {
+            if (strcmp(sheet[i].empId, viewEmpId) == 0 &&
+                strcmp(sheet[i].date, dateStr) == 0)
+            {
+                strcpy(status, sheet[i].status);
+                logged = 1;
+                break;
+            }
+        }
+
+        printf("| %-12s | %-11s |\n", dateStr, status);
+    }
+
+    printf("+--------------+-------------+\n");
+    printf("Hien thi thanh cong!\n");
 }
 
 // HELPERS
-void getToday(int *d, int *m, int *y) {
+void getToday(int *d, int *m, int *y)
+{
     time_t t = time(NULL);
-    struct tm now = *localtime(&t);
+    struct tm *now = localtime(&t);
 
-    *d = now.tm_mday;
-    *m = now.tm_mon + 1;  // tháng bắt đầu từ 0
-    *y = now.tm_year + 1900;
+    *d = now->tm_mday;
+    *m = now->tm_mon + 1;
+    *y = now->tm_year + 1900;
 }
 
 int isFutureDate(int d, int m, int y) {
@@ -1020,5 +1165,12 @@ int isFutureDate(int d, int m, int y) {
     if (y == ty && m > tm) return 1;
     if (y == ty && m == tm && d > td) return 1;
 
+    return 0;
+}
+int compareDate(int d1, int m1, int y1, int d2, int m2, int y2)
+{
+    if (y1 != y2) return (y1 > y2) ? 1 : -1;
+    if (m1 != m2) return (m1 > m2) ? 1 : -1;
+    if (d1 != d2) return (d1 > d2) ? 1 : -1;
     return 0;
 }
