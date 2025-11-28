@@ -87,7 +87,7 @@ int main()
             fgets(choicebuffer, sizeof(choicebuffer), stdin);
             choicebuffer[strcspn(choicebuffer, "\n")] = '\0'; // xoa newline
 
-            if (sscanf(choicebuffer, "%d", &choice) == 1) // chuyen dinh char dang sang int
+            if (sscanf(choicebuffer, "%d", &choice) == 1) // chuyen dinh char dang sang int , trich xuat du lieu
                 break;
 
             printf("SAI DINH DANG , NHAP LAI\n");
@@ -156,20 +156,20 @@ void displayEmployeeList(struct Employee list[], int n)
     char input[20];
 
     while (1)
-    {
+    {     /// thieu nhap trang
         printf("SO TRANG MUON XEM 1 - %d: ", totalPages);
 
         fgets(input, sizeof(input), stdin);
         input[strcspn(input, "\n")] = '\0';
 
-        // --- KHÔNG ĐƯỢC ĐỂ TRỐNG ---
+        // KHONG DE TRONG
         if (strlen(input) == 0)
         {
             printf("Khong duoc de trong. Vui long nhap so trang.\n");
             continue;
         }
 
-        // --- PHẢI LÀ SỐ ---
+        // PHAI LA SO
         int valid = 1;
         for (int i = 0; i < strlen(input); i++)
         {
@@ -654,14 +654,14 @@ void bubblesort(struct Employee list[], int n)
         char buffer[20];
         fgets(buffer, sizeof(buffer), stdin);
 
-        // kiểm tra rỗng
+        // none checker
         if (buffer[0] == '\n')
         {
             printf("KHONG HOP LE .... NHAP LAI...\n");
             continue;
         }
 
-        // kiểm tra có phải số hay không
+        // co phai so??
         if (sscanf(buffer, "%d", &bubblechoice) != 1) // sscanf doc du lieu tu bo dem
         {
             printf("KHONG HOP LE..... NHAP LAI...\n");
@@ -727,10 +727,10 @@ void FINDEMPLOYEE(struct Employee list[], int n)
     printf("NHAP TEN NHAN VIEN CAN TIM: ");
     fgets(searchName, sizeof(searchName), stdin);
     searchName[strcspn(searchName, "\n")] = '\0';
-
+    searchName[strcspn(searchName, " ")] = '\0';
     if (strlen(searchName) == 0)
     {
-        printf("Ten tim kiem KHONG DUOC de trong!\n");
+        printf("Ten tim kiem KHONG DUOC de trong!/ KHONG DUOC CACH DAU DONG\n");
         return;
     }
 
@@ -1118,16 +1118,16 @@ void timesheetviewerv2(struct Employee list[], int n, struct TimeSheet sheet[], 
     printf("| Ngay cham    | Trang thai  |\n");
     printf("+--------------+-------------+\n");
 
-    // === HIỂN THỊ TỪ NGÀY 1 → HÔM NAY ===
+    // dau thang - > hom nay
     for (int day = 1; day <= todayD; day++)
     {
         char dateStr[20];
         sprintf(dateStr, "%02d/%02d/%04d", day, startM, startY);
 
-        char status[20] = "Nghi lam"; // mặc định không có log
+        char status[20] = "Nghi lam"; // mac dinh khong co log
         int logged = 0;
 
-        // kiểm tra logs
+        // kiem tra log
         for (int i = 0; i < logCount; i++)
         {
             if (strcmp(sheet[i].empId, viewEmpId) == 0 &&
