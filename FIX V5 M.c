@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
+
+
 
 #define MAX 100
 
@@ -22,13 +25,11 @@ struct TimeSheet
     char status[10];
 };
 //-----------STRUCTURE
-struct Employee list[MAX];  // list 
+struct Employee list[MAX];   // list
 struct TimeSheet sheet[MAX]; // cham cong
 //----------------------------------
 
-//void deleteEmployeev2(struct Employee list[], int *n);    // ver 1 khong confirm
-
-
+// void deleteEmployeev2(struct Employee list[], int *n);    // ver 1 khong confirm
 
 //-------------- MAIN FUNCS --------------
 void bubblesortafterdisplay(struct Employee list[], int n);
@@ -39,13 +40,16 @@ void displayEmployeeList(struct Employee list[], int n);                        
 void bubblesort(struct Employee list[], int n);                                            // sap xep nhan vien
 void FINDEMPLOYEE(struct Employee list[], int n);                                          // tim nhan vien
 void Time_Keeping(struct Employee list[], int n, struct TimeSheet sheet[], int *logCount); // cham cong
-int isValidDate(char *date);                                                               // check 31 30 , 28 , 29
-int EMPTYCHECKER(char *str);                                                               // ky tu space
-int isFutureDate(int d, int m, int y);                                                     // check tuong lai
-void getToday(int *d, int *m, int *y);                                                      // check hom nay
-//void timesheetviewer(struct Employee list[], int n,struct TimeSheet sheet[], int logCount);  // check cham cong
-void timesheetviewerv2(struct Employee list[], int n,struct TimeSheet sheet[], int logCount);  // check cham cong V2
-int  compareDate(int d1, int m1, int y1, int d2, int m2, int y2);                            // so sanh ngay
+//--------- HELPERS -------------------
+void printList();                      // printer-updated
+void toLowerStr(char s[]);             // ansi printer convert
+int isValidDate(char *date);           // check 31 30 , 28 , 29
+int EMPTYCHECKER(char *str);           // ky tu space
+int isFutureDate(int d, int m, int y); // check tuong lai
+void getToday(int *d, int *m, int *y); // check hom nay
+// void timesheetviewer(struct Employee list[], int n,struct TimeSheet sheet[], int logCount);  // check cham cong
+void timesheetviewerv2(struct Employee list[], int n, struct TimeSheet sheet[], int logCount); // check cham cong V2
+int compareDate(int d1, int m1, int y1, int d2, int m2, int y2);                               // so sanh ngay
 //------------------------------
 void showBUBBLE_MENU()
 {
@@ -68,7 +72,7 @@ void showmenu()
     printf("|  9.Thoat                                    |\n");
     printf(" =============================================\n");
 }
-
+// XOA LOG      	system("cls");
 //--------------------------------------
 int main()
 {
@@ -83,7 +87,7 @@ int main()
         printf("Moi ban nhap lua chon: ");
         while (1)
         {
-            
+
             fgets(choicebuffer, sizeof(choicebuffer), stdin);
             choicebuffer[strcspn(choicebuffer, "\n")] = '\0'; // xoa newline
 
@@ -98,42 +102,54 @@ int main()
         switch (choice)
         {
         case 1:
+        	system("cls");
             add_people(list, &n);
             fflush(stdin);
             break;
         case 2:
+        	system("cls");
             updateEmployee(list, &n);
             fflush(stdin);
             break;
         case 3:
+        	system("cls");
             //	deleteEmployee(list , &n);
             deleteEmployeev3(list, &n);
             fflush(stdin);
             break;
         case 4:
-            displayEmployeeList(list, n);
+        	system("cls");
+            // displayEmployeeList(list, n);
+            printList(list, n);
             fflush(stdin);
             break;
         case 5:
+        	system("cls");
             FINDEMPLOYEE(list, n);
             fflush(stdin);
             // printf("ss");
 
             break;
         case 6:
+        	system("cls");
             bubblesort(list, n);
             fflush(stdin);
             break;
         case 7:
+        	system("cls");
             Time_Keeping(list, n, sheet, &logCount);
             fflush(stdin);
             break;
-        case 8 : 
-           // timesheetviewer(list, n, sheet, logCount);
+        case 8:
+        	system("cls");
+            // timesheetviewer(list, n, sheet, logCount);
             timesheetviewerv2(list, n, sheet, logCount);
             fflush(stdin);
-			break;
-            
+            break;
+        case 9 : 
+            printf("Dang thoat....");
+            system("cls");
+            break;
         default:
             printf("\nKhong hop le!\n \n");
         }
@@ -141,7 +157,7 @@ int main()
 
     return 0;
 }
- // CASE 4
+// CASE 4
 void displayEmployeeList(struct Employee list[], int n)
 {
     if (n == 0)
@@ -156,7 +172,7 @@ void displayEmployeeList(struct Employee list[], int n)
     char input[20];
 
     while (1)
-    {     /// thieu nhap trang
+    { /// thieu nhap trang
         printf("SO TRANG MUON XEM 1 - %d: ", totalPages);
 
         fgets(input, sizeof(input), stdin);
@@ -173,7 +189,7 @@ void displayEmployeeList(struct Employee list[], int n)
         int valid = 1;
         for (int i = 0; i < strlen(input); i++)
         {
-            if (!isdigit(input[i]))  // check co phai de so
+            if (!isdigit(input[i])) // check co phai de so
             {
                 valid = 0;
                 break;
@@ -347,10 +363,11 @@ void updateEmployee(struct Employee list[], int *n)
 
     printf("Cap nhat thong tin thanh cong!\n");
 }
- 
- // CASE 1
+
+// CASE 1
 void add_people(struct Employee list[], int *n)
 {
+	
     if (*n >= MAX)
     { // CHECK MANG
         printf("Danh sach nhan vien da day, khong the them!\n");
@@ -361,37 +378,41 @@ void add_people(struct Employee list[], int *n)
 
     // ID ---
     while (1)
-{
-    printf("Nhap ma nhan vien: ");
-    fgets(buffer, sizeof(buffer), stdin);
-     
+    {
+        printf("Nhap ma nhan vien: ");
+        fgets(buffer, sizeof(buffer), stdin);
 
-    if (EMPTYCHECKER(buffer)) {
-        printf("Ma nhan vien khong duoc trong!\n");
-        continue;
-    }
-
-    // 🚫 CẤM BẮT ĐẦU BẰNG DẤU '-'
-    if (buffer[0] == '-') {
-        printf("KHONG DUOC BAT DAU BANG DAU '-'\n");
-        continue;
-    }
-
-    int exists = 0;
-    for (int i = 0; i < *n; i++) {
-        if (strcmp(list[i].empId, buffer) == 0) {
-            exists = 1;
-            break;
+        if (EMPTYCHECKER(buffer))
+        {
+            printf("Ma nhan vien khong duoc trong!\n");
+            continue;
         }
-    }
-    if (exists) {
-        printf("Ma nhan vien da ton tai! Nhap lai.\n");
-        continue;
-    }
 
-    strcpy(list[*n].empId, buffer);
-    break;
-}
+        // 🚫 CẤM BẮT ĐẦU BẰNG DẤU '-'
+        if (buffer[0] == '-')
+        {
+            printf("KHONG DUOC BAT DAU BANG DAU '-'\n");
+            continue;
+        }
+
+        int exists = 0;
+        for (int i = 0; i < *n; i++)
+        {
+            if (strcmp(list[i].empId, buffer) == 0)
+            {
+                exists = 1;
+                break;
+            }
+        }
+        if (exists)
+        {
+            printf("Ma nhan vien da ton tai! Nhap lai.\n");
+            continue;
+        }
+
+        strcpy(list[*n].empId, buffer);
+        break;
+    }
 
     // --- NHAP TEN ---
     while (1)
@@ -534,7 +555,7 @@ void deleteEmployeev2(struct Employee list[], int *n)
 
     printf("Xoa nhan vien %s thanh cong.\n", deleteEmpId);
 }
- // CASE 3
+// CASE 3
 void deleteEmployeev3(struct Employee list[], int *n)
 {
     char deleteEmpId[20];
@@ -629,7 +650,7 @@ void deleteEmployeev3(struct Employee list[], int *n)
     printf("Xoa nhan vien %s thanh cong.\n", deleteEmpId);
 }
 
- // CASE 6
+// CASE 6
 void bubblesort(struct Employee list[], int n)
 {
 
@@ -693,8 +714,9 @@ void bubblesort(struct Employee list[], int n)
                     list[indexer + 1] = temp;
                 }
             }
-        }   bubblesortafterdisplay(list, n);  
-            return ;
+        }
+        bubblesortafterdisplay(list, n);
+        return;
     }
     else if (bubblechoice == 2)
     {
@@ -711,9 +733,10 @@ void bubblesort(struct Employee list[], int n)
                 }
             }
         }
-    }   bubblesortafterdisplay(list, n);  
-       return ; 
- }
+    }
+    bubblesortafterdisplay(list, n);
+    return;
+}
 // CASE 5
 void FINDEMPLOYEE(struct Employee list[], int n)
 {
@@ -771,7 +794,6 @@ void FINDEMPLOYEE(struct Employee list[], int n)
         printf("KHONG TIM THAY NHAN VIEN CO TEN \"%s\"!\n", searchName);
 }
 
-
 // CASE 7
 void Time_Keeping(struct Employee list[], int n, struct TimeSheet sheet[], int *logCount)
 {
@@ -783,9 +805,8 @@ void Time_Keeping(struct Employee list[], int n, struct TimeSheet sheet[], int *
 
     char checkInEmpId[20];
     char checkInDate[20];
-    
-    
-    // MA NHAN VIEN 
+
+    // MA NHAN VIEN
     while (1)
     {
         printf("Nhap ma nhan vien can cham cong: ");
@@ -816,7 +837,6 @@ void Time_Keeping(struct Employee list[], int n, struct TimeSheet sheet[], int *
         printf("Khong tim thay nhan vien co ma %s\n", checkInEmpId);
         return;
     }
-
 
     // CHAM CONG
     while (1)
@@ -849,7 +869,6 @@ void Time_Keeping(struct Employee list[], int n, struct TimeSheet sheet[], int *
         break;
     }
 
-
     //--------------- TRUNG LAP
     for (int i = 0; i < *logCount; i++)
     {
@@ -862,8 +881,7 @@ void Time_Keeping(struct Employee list[], int n, struct TimeSheet sheet[], int *
         }
     }
 
-
-   // SUCCESS
+    // SUCCESS
     list[pos].workDay++;
 
     sprintf(sheet[*logCount].logId, "LOG%03d", *logCount + 1);
@@ -912,7 +930,6 @@ int EMPTYCHECKER(char *str) // check xem co ki tu rong
     return 1; // trong
 }
 
-
 void bubblesortafterdisplay(struct Employee list[], int n)
 {
     if (n == 0)
@@ -942,7 +959,7 @@ void bubblesortafterdisplay(struct Employee list[], int n)
 // CASE 8
 void timesheetviewer(struct Employee list[], int n, struct TimeSheet sheet[], int logCount)
 {
-	
+
     if (n == 0)
     {
         printf("\nDanh sach nhan vien dang trong!\n");
@@ -1052,8 +1069,6 @@ void timesheetviewer(struct Employee list[], int n, struct TimeSheet sheet[], in
     printf("Hien thi thanh cong!\n");
 }
 
-
-
 void timesheetviewerv2(struct Employee list[], int n, struct TimeSheet sheet[], int logCount)
 {
     if (n == 0)
@@ -1157,20 +1172,140 @@ void getToday(int *d, int *m, int *y)
     *y = now->tm_year + 1900;
 }
 
-int isFutureDate(int d, int m, int y) {
+int isFutureDate(int d, int m, int y)
+{
     int td, tm, ty;
     getToday(&td, &tm, &ty);
 
-    if (y > ty) return 1;
-    if (y == ty && m > tm) return 1;
-    if (y == ty && m == tm && d > td) return 1;
+    if (y > ty)
+        return 1;
+    if (y == ty && m > tm)
+        return 1;
+    if (y == ty && m == tm && d > td)
+        return 1;
 
     return 0;
 }
 int compareDate(int d1, int m1, int y1, int d2, int m2, int y2)
 {
-    if (y1 != y2) return (y1 > y2) ? 1 : -1;
-    if (m1 != m2) return (m1 > m2) ? 1 : -1;
-    if (d1 != d2) return (d1 > d2) ? 1 : -1;
+    if (y1 != y2)
+        return (y1 > y2) ? 1 : -1;
+    if (m1 != m2)
+        return (m1 > m2) ? 1 : -1;
+    if (d1 != d2)
+        return (d1 > d2) ? 1 : -1;
     return 0;
+}
+// F04 - Hien thi danh sach nhan vien co dieu huong
+void printList(struct Employee list[], int n)
+{
+    if (n == 0)
+    {
+        printf("Danh sach nhan vien hien dang trong!\n");
+        return;
+    }
+
+    int perPage = 2;
+    int totalPage = (n + perPage - 1) / perPage;
+    int page = 1;
+
+    char choice[10];
+
+    while (1)
+    {
+        // tinh vtri
+        int start = (page - 1) * perPage;
+        int end = start + perPage;
+        if (end > n)
+            end = n;
+
+        // collect my pages
+        printf("\n=== TRANG %d / %d ===\n", page, totalPage);
+
+        printf("+----+------------+----------------------+---------------+------------+----------+\n");
+        printf("| STT| Ma NV      | Ten NV               | Chuc vu       | Luong      | Ngay cong|\n");
+        printf("+----+------------+----------------------+---------------+------------+----------+\n");
+
+        for (int i = start; i < end; i++) {
+            printf("| %2d | %-10s | %-20s | %-10s    | %10.2lf | %8d |\n",
+                   i + 1,
+                   list[i].empId,
+                   list[i].name,
+                   list[i].position,
+                   list[i].baseSalary,
+                   list[i].workDay);
+        }
+        printf("+----+------------+----------------------+---------------+------------+----------+\n");
+
+        // DIEU HUONG
+        printf("\nLua chon:\n");
+        printf(" N - Trang tiep theo\n");
+        printf(" P - Trang truoc\n");
+        printf(" G - Nhay den trang bat ky\n");
+        printf(" E - Thoat\n");
+        printf("Nhap lua chon: ");
+
+        fgets(choice, sizeof(choice), stdin);
+        choice[strcspn(choice, "\n")] = 0;
+
+        //CHCKER
+        if (strcasecmp(choice, "N") == 0)
+        {
+            if (page < totalPage)
+                page++;
+            else
+                printf("Ban dang o trang cuoi!\n");
+        }
+        else if (strcasecmp(choice, "P") == 0)
+        {
+            if (page > 1)
+                page--;
+            else
+                printf("Ban dang o trang dau!\n");
+        }
+        else if (strcasecmp(choice, "G") == 0)
+        {
+            int gotoPage;
+            printf("Nhap so trang muon den (1-%d): ", totalPage);
+
+            if (scanf("%d", &gotoPage) != 1)
+            {
+                printf("Dinh dang khong hop le!\n");
+                while (getchar() != '\n')
+                    ;
+                continue;
+            }
+
+            while (getchar() != '\n')
+                ; // clear buffer
+
+            if (gotoPage >= 1 && gotoPage <= totalPage)
+            {
+                page = gotoPage;
+            }
+            else
+            {
+                printf("TRANG KHONG TON TAI\n");
+            }
+        }
+        else if (strcasecmp(choice, "E") == 0)
+        {
+            printf("DA THOAT KHOI HIEN THI\n");
+            
+            return;
+        }
+        else
+        {
+            printf("Lua chon khong hop le!\n");
+        }
+    }
+}
+
+void toLowerStr(char s[])
+{
+    for (int i = 0; s[i]; i++)
+    {
+        if (s[i] >= 'A' && s[i] <= 'Z')
+            s[i] += 32;
+    }
 }
